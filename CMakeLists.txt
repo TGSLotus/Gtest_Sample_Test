@@ -1,31 +1,39 @@
-cmake_minimum_required(VERSION 3.1)
+# Note: CMake support is community-based. The maintainers do not use CMake
+# internally.
 
-## Locate GTest
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})  # Var managed by CMake
+cmake_minimum_required(VERSION 3.5)
 
-## Add GTest required libraries to linker
-link_libraries(${GTEST_LIBRARIES} gtest_main pthread)
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
 
-## Set c++ 11 std
-set(CMAKE_CXX_STANDARD 11)
+if (POLICY CMP0069)
+  cmake_policy(SET CMP0069 NEW)
+endif (POLICY CMP0069)
 
-## Include our source directories
-set(CMAKE_INCLUDE_CURRENT_DIR True)
+if (POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif (POLICY CMP0077)
 
-## Set gcov flags
-set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
-set(CMAKE_EXE_LINKER_FLAGS "-lgcov")
+project(googletest-distribution)
+set(GOOGLETEST_VERSION 1.13.0)
 
-## Define executables for each test suite
-set(SIMPLE "runSimpleTests")
-add_executable(${SIMPLE} "test/src/simple_tests.cpp" "code/src/easy_math.cpp")
+if(NOT CYGWIN AND NOT MSYS AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL QNX)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
 
-set(FAILING "runFailingTests")
-add_executable(${FAILING} "test/src/failing_tests.cpp" "code/src/easy_math.cpp")
+enable_testing()
 
-set(FIXTURE "runFixtureTests")
-add_executable(${FIXTURE} "test/src/fixture_tests.cpp" "code/src/easy_math.cpp")
+include(CMakeDependentOption)
+include(GNUInstallDirs)
 
-set(PARAM "runParamTests")
-add_executable(${PARAM} "test/src/parametric_tests.cpp" "code/src/easy_math.cpp")
+#Note that googlemock target already builds googletest
+option(BUILD_GMOCK "Builds the googlemock subproject" ON)
+option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" ON)
+option(GTEST_HAS_ABSL "Use Abseil and RE2. Requires Abseil and RE2 to be separately added to the build." OFF)
+
+if(BUILD_GMOCK)
+  add_subdirectory( googlemock )
+else()
+  add_subdirectory( googletest )
+endif()
