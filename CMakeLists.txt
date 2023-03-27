@@ -19,6 +19,7 @@ add_executable(
   hello_test
   hello_test.cc
   AdditionExample1.cpp
+  AdditionExample1.h
   ClassExample1.cpp
 )
 target_link_libraries(
